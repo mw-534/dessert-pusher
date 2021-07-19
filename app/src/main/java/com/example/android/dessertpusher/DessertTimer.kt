@@ -18,6 +18,9 @@ package com.example.android.dessertpusher
 
 import android.os.Handler
 import android.os.Looper
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import timber.log.Timber
 
 /**
@@ -35,7 +38,7 @@ import timber.log.Timber
  * https://developer.android.com/guide/components/processes-and-threads
  *
  */
-class DessertTimer {
+class DessertTimer(lifecycle: Lifecycle) : LifecycleObserver {
 
     // The number of seconds counted since the timer started
     var secondsCount = 0
@@ -47,7 +50,13 @@ class DessertTimer {
     private var handler = Handler(Looper.getMainLooper())
     private lateinit var runnable: Runnable
 
+    init {
+        // Add this as a lifecycle Observer, which allows for the class to react to changes in this
+        // activity's lifecycle state
+        lifecycle.addObserver(this)
+    }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun startTimer() {
         // Create the runnable action, which prints out a log and increments the seconds counter
         runnable = Runnable {
@@ -66,6 +75,7 @@ class DessertTimer {
         // In this case the applications main looper is used which lives in the main or UI thread.
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun stopTimer() {
         // Removes all pending posts of runnable from the handler's queue, effectively stopping the
         // timer
